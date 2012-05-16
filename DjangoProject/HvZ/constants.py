@@ -10,8 +10,8 @@ DAYS = ["Monday",
         "Wednesday",
         "Thursday",
         "Friday",
-        "Saturday",
-        "Sunday"]
+        "Saturday"
+]
 
 BUILDING_LEGEND = {
     "C": "Academic building",
@@ -21,3 +21,35 @@ BUILDING_LEGEND = {
     "L": "Landmark or notable feature",
     "O": "Other building"
     }
+
+CLASS_YEAR = {
+    "F": "Froshling",
+    "O": "Sophomore",
+    "J": "Junior",
+    "N": "Senior",
+    "U": "Super Senior",
+    "A": "Alum"
+}
+
+MISSION_LEGEND = {
+    "D": "Day",
+    "T": "Night",
+    "X": "NPC",
+    "Y": "Legendary",
+}
+
+VICTORY = {
+    "N":  "Not Over",
+    "HF": "Human Full",
+    "HP": "Human Partial",
+    "D":  "Draw",
+    "ZP": "Zombie Partial",
+    "ZF": "Zombie Full",
+}
+
+VISIBILITY = {
+    "M": "Moderators Only",
+    "B": "Both Teams",
+    "H": "Humans Only",
+    "Z": "Zombies Only",
+}
