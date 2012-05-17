@@ -3,6 +3,24 @@ from django.contrib.auth.models import User
 
 from constants import *
 
+#################
+# Generic Stuff #
+#################
+def get_field(instance, fieldName, team):
+    """Return the human or zombie version of a field from the given instance.
+
+    The returned field will be either "human_{fieldName}" or
+    "zombie_{fieldName}".
+
+    """
+    if team == "H":
+        modifier = "human_"
+    else:
+        modifier = "zombie_"
+        
+    return instance.__dict__[modifier + fieldName]
+
+
 ##################
 # Building Stuff #
 ##################
@@ -28,12 +46,12 @@ class Building(models.Model):
         )
 
     name = models.CharField(max_length=100)
-    campus = models.ForeignKey(School,blank=True,null=True)
-    lat = models.DecimalField(max_digits=9,decimal_places=6)
-    lng = models.DecimalField(max_digits=9,decimal_places=6)
-    building_type = models.CharField(max_length=1,choices=BUILDING_TYPES)
+    campus = models.ForeignKey(School,blank=True, null=True)
+    lat = models.DecimalField(max_digits=9, decimal_places=6)
+    lng = models.DecimalField(max_digits=9, decimal_places=6)
+    building_type = models.CharField(max_length=1, choices=BUILDING_TYPES)
     def __unicode__(self):
-        return "%s (%s)" % (self.name, self.campus)
+        return "{0} ({1})".format(self.name, self.campus)
 
     def get_kind(self):
         return get_building_type_display()
@@ -48,12 +66,12 @@ class Game(models.Model):
         ("S","Spring"),
         ("F","Fall")
         )
-    semester = models.CharField(max_length=1,choices=SEMS)
+    semester = models.CharField(max_length=1, choices=SEMS)
     year = models.PositiveIntegerField()
     start_date = models.DateField()
     def __unicode__(self):
-        return "{} {}".format(self.get_semester_display(),
-                              self.year % 100)
+        return "{0} {1}".format(self.get_semester_display(),
+                                self.year % 100)
 
 class Rule(models.Model):
     """Rules stuff"""
@@ -62,6 +80,7 @@ class Rule(models.Model):
         ("C","Class"),
         ("B","Basic")
         )
+
     title = models.CharField(max_length=30)
     description = models.TextField(blank=False)
     category= models.CharField(max_length=1,choices=CATS)
@@ -69,7 +88,12 @@ class Rule(models.Model):
     youtube = models.URLField(verify_exists=True,blank=True,null=True)
     image = models.ImageField(upload_to="img/rule/",blank=True,null=True)
     location = models.ForeignKey(Building,blank=True,null=True)
-    priority = models.PositiveSmallIntegerField(blank=False,default=0,help_text="Rules with a higher priority appear earlier in the list.")
+
+    priority = models.PositiveSmallIntegerField(
+        blank=False,
+        default=0,
+        help_text="Rules with a higher priority appear earlier in the list.")
+
     def __unicode__(self):
         return self.title
 
@@ -87,42 +111,44 @@ class Mission(models.Model):
     """Everything about missions"""
 
     #Basic info
-    human_title = models.CharField(max_length=30,blank=True,null=True)
-    zombie_title = models.CharField(max_length=30,blank=True,null=True)
+    human_title = models.CharField(max_length=30, blank=True, null=True)
+    zombie_title = models.CharField(max_length=30, blank=True, null=True)
+
     game = models.ForeignKey(Game)
-    day = models.CharField(max_length=3,choices=DAYS)
-    kind = models.CharField(max_length=1,choices=MISSION_LEGEND)
-    show_players = models.CharField(max_length=1,choices=VISIBILITY,default="M")
-    result = models.CharField(max_length=2,choices=VICTORY,default="N")
+    day = models.CharField(max_length=3, choices=DAYS)
+    kind = models.CharField(max_length=1, choices=MISSION_LEGEND)
+    show_players = models.CharField(max_length=1, choices=VISIBILITY, default="M")
+    result = models.CharField(max_length=2, choices=VICTORY, default="N")
 
     # This is story stuff. Both sides see the quote
     # story is what they see before and during the mission
     # outcome is what they see after the mission
-    quote = models.TextField(blank=True,null=True)
+    quote = models.TextField(blank=True, null=True)
+
     human_story = models.TextField()
-    human_outcome = models.TextField()
     zombie_story = models.TextField()
+
+    human_outcome = models.TextField()
     zombie_outcome = models.TextField()
 
     # This is what the teams see in the "rules" or "mechanics" section
     # for each mission, it also includes goals
-    human_rules = models.TextField(blank=True,null=True)
-    zombie_rules = models.TextField(blank=True,null=True)
+    human_rules = models.TextField(blank=True, null=True)
+    zombie_rules = models.TextField(blank=True, null=True)
 
-    # This is what the teams see in the "rewards" section for each
-    # mission
-    human_reward = models.TextField(blank=True,null=True)
-    zombie_reward = models.TextField(blank=True,null=True)
+    # This is what the teams see in the "rewards" section for each mission
+    human_reward = models.TextField(blank=True, null=True)
+    zombie_reward = models.TextField(blank=True, null=True)
 
     # This is what response is returned if someone texts "mission",
     # "mission NPC", or "mission Legendary" to us
-    human_SMS = models.CharField(max_length=140,blank=True,null=True)
-    zombie_SMS = models.CharField(max_length=140,blank=True,null=True)
+    human_SMS = models.CharField(max_length=140, blank=True, null=True)
+    zombie_SMS = models.CharField(max_length=140, blank=True, null=True)
 
     def __unicode__(self):
-        return "%s: %s/%s" % (self.game,
-                              self.human_title,
-                              self.zombie_title)
+        return "{0}: {1}/{2}".format(self.game,
+                                     self.human_title,
+                                     self.zombie_title)
 
     # TODO: We shouldn't actually need these functions--get rid of
     # them after we know we don't depend on them.
@@ -149,29 +175,19 @@ class Mission(models.Model):
         elif self.result=="ZF":
             return "6"
 
-    def get_title(self,team):
-        if team=="H":
-            return self.human_title
-        else:
-            return self.zombie_title
+    def get_title(self, team):
+        return get_field(self, "title", team)
 
-    def get_story(self,team):
-        # TODO: Combine this with a template
+    # TODO: Combine this with a template
+    def get_story(self, team):
 
         if self.show_players != "B" and self.show_players != team:
             return "No Story is visible for this mission yet."
 
-        if team=="H":
-            story = self.human_story
-            outcome = self.human_outcome
-        else:
-            story = self.zombie_story
-            outcome = self.zombie_outcome
-
-        ret = story
+        ret = get_field(self, "story", team)
         
         if self.result!="N":
-            ret += "<br/>" + outcome
+            ret += "<br/>" + get_field(self, "outcome", team)
 
         return ret
 
@@ -179,10 +195,7 @@ class Mission(models.Model):
         if self.show_players != "B" and self.show_players != team:
             return "No Reward is visible for this mission yet."
     
-        if team=="H":
-            return self.human_reward
-        else:
-            return self.zombie_reward
+        return get_field(self, "reward", team)
 
 #Link mission to Image
 class MissionPic(models.Model):
@@ -215,22 +228,21 @@ class Plot(models.Model):
     story = models.TextField(blank=False)
     reveal_time = models.DateTimeField()
     def __unicode__(self):
-        return "%s: %s" % (self.game,
-                           self.title)
+        return "{0}: {1}".format(self.game, self.title)
+
+
 ################
 # Player Stuff #
 ################
 class Player(models.Model):
     """extra information about users"""
     user = models.OneToOneField(User)
-    school = models.ForeignKey(School)
-    dorm = models.ForeignKey(Dorm)
-    grad_year = models.PositiveIntegerField(blank=True,null=True)
     cell = models.DecimalField(max_digits=10,
                                decimal_places=0,
                                blank=True,
                                null=True)
     bad_meals = models.PositiveSmallIntegerField(default=0,blank=False)
+
     def __unicode__(self):
         return "%s %s" % (self.user.first_name, self.user.last_name)
 
@@ -300,17 +312,18 @@ class Character(models.Model):
         )
     player = models.ForeignKey(Player)
     game = models.ForeignKey(Game)
-    team = models.CharField(max_length=1,choices=TEAMS,default="H")
-    upgrade = models.CharField(max_length=30,blank=True,null=True)
+    team = models.CharField(max_length=1, choices=TEAMS, default="H")
+    upgrade = models.CharField(max_length=30, blank=True, null=True)
     hardcore = models.BooleanField(default=False)
+
     # Meals is now total meals to avoid a costly DB lookup when you
     # want to know how many meals someone has
     meals = models.PositiveSmallIntegerField(default=0,blank=False)
-    # These 3 fields are redundant most of the time, but are useful
-    # for archiving games
-    lives_in = models.ForeignKey(Dorm)
+
+    # These 3 fields are useful for archiving games
+    lives_in = models.ForeignKey(Building)
     goes_to = models.ForeignKey(School)
-    year = models.CharField(max_length=2,choices=CLASS_YEAR,blank=True,null=True)
+    year = models.PositiveSmallIntegerField(blank=True, null=True)
     
     def __unicode__(self):
         return ("%s: %s %s" %
@@ -321,35 +334,47 @@ class Character(models.Model):
                 )
 
     def get_year(self):
-        return CLASS_YEAR[self.year]
+        return get_year_display()
 
 class FeedCode(models.Model):
     """We have to pull this out now that feed cards have extra options"""
+
     #If blank, then the meal is just a reward not linked to a player
     character = models.ForeignKey(Character,blank=True)
+
     #code is the 6 letter feed code
     code = models.CharField(max_length=6)
-    #value is how many meals the eater's mealcount should be incremented by when they eat this card
+
+    #value is how many meals the eater's mealcount should be
+    #incremented by when they eat this card
+
     value = models.PositiveSmallIntegerField(default=1)
-    #turns is true if eating this code turns the player, if false they stay human after having this card eaten
-    #the meals page and timeline page should note this as "almost ate", "barely escaped", or the like
+
+    # turns is true if eating this code turns the player, if false they
+    # stay human after having this card eaten
+    #
+    # The meals page and timeline page should note this as "almost
+    # ate", "barely escaped", or the like
     turns = models.BooleanField(default=True)
 
 class Meal(models.Model):
     """Meals are what happens when one player eats another"""
-    eater = models.ForeignKey(Player,related_name="eater")
-    eaten = models.ForeignKey(Player,related_name="eaten")
+
+    eater = models.ForeignKey(Player, related_name="eater")
+    eaten = models.ForeignKey(Player, related_name="eaten")
     game = models.ForeignKey(Game)
     time = models.DateTimeField()
     escaped = models.BooleanField(default=False)
-    location = models.ForeignKey(Building,blank=True,null=True)
-    description = models.TextField(blank=True,null=True)
+    location = models.ForeignKey(Building, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
 
     def __unicode__(self):
-        return str(self.game)+": "+str(self.eater)+" ate "+str(self.eaten)
+        return "{1}: {1} ate {1}".format(self.game, self.eater, self.eaten)
 
 class Classes(models.Model):
-    #A way that players can give a rough outline of where they will be when so they can better coordinate being in groups for safety. 
+    # A way that players can give a rough outline of where they will
+    # be when so they can better coordinate being in groups for
+    # safety.
     TIMES = (
         ("E","Early Morning (Before 8 AM)"),
         ("M","Morning (8-11 AM)"),
@@ -361,10 +386,10 @@ class Classes(models.Model):
         )
     #For people who want to coordinate 
     character = models.ForeignKey(Character)
-    classroom = models.ForeignKey(Classroom)
-    day = models.CharField(max_length=1,choices=DAYS)
-    arrive = models.CharField(max_length=1,choices=TIMES)
-    leave = models.CharField(max_length=1,choices=TIMES)
+    classroom = models.ForeignKey(Building)
+    day = models.CharField(max_length=1, choices=DAYS)
+    arrive = models.CharField(max_length=1, choices=TIMES)
+    leave = models.CharField(max_length=1, choices=TIMES)
 
 class Achievement(models.Model):
     """The link between a character and an award they received"""
@@ -378,7 +403,7 @@ class Achievement(models.Model):
 ###############
 class Squad(models.Model):
     """Lets players organize themselves into groups"""
-    name = models.CharField(max_length=30);
+    name = models.CharField(max_length=50);
     game = models.ForeignKey(Game)
     description = models.TextField(blank=False)
     icon = models.ImageField(upload_to="icons/squads/")
@@ -393,11 +418,6 @@ class SquadMember(models.Model):
 # Forum Stuff #
 ###############
 class ForumThread(models.Model):
-    TEAMS = (
-        ("H","Humans"),
-        ("Z","Zombies"),
-        ("B","Both"),
-        )
     title = models.CharField(max_length=30,blank=False)
     description = models.TextField(blank=True,null=True)
     game = models.ForeignKey('Game',blank=False)
@@ -406,9 +426,9 @@ class ForumThread(models.Model):
     visibility = models.CharField(max_length=1,blank=False,choices=TEAMS)
 
     def __unicode__(self):
-        return "%s (%s: %s)" % (self.title,
-                                self.game,
-                                self.visibility)
+        return "{0} ({1}: {2})".format(self.title,
+                                       self.game,
+                                       self.visibility)
 
     def post_count(self):
         return ForumPost.objects.filter(parent=self).count()
@@ -421,17 +441,18 @@ class ForumThread(models.Model):
             return None
 
 class ForumPost(models.Model):
-    parent = models.ForeignKey('ForumThread',blank=False)
+    parent = models.ForeignKey('ForumThread', blank=False)
     contents = models.TextField(blank=False)
-    create_time = models.DateTimeField(auto_now=True,blank=False)
-    creator = models.ForeignKey('Player',blank=False)
+    create_time = models.DateTimeField(auto_now=True, blank=False)
+    creator = models.ForeignKey('Player', blank=False)
 
     def __unicode__(self):
-        return ("%s - %s on %s" %
-                (str(self.parent),
-                 str(self.creator),
-                 self.create_time.strftime("%a %I:%M %p")
-                 ))
+        return ("{0} - {1} on {2}".format(
+                self.parent,
+                self.creator,
+                self.create_time.strftime("%a %I:%M %p")
+                ))
+
 
 ########
 # Misc #

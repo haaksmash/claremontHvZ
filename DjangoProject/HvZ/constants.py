@@ -5,6 +5,13 @@ All constants should be in ALL_CAPS, since they'll probably be
 
 """
 
+TEAMS = (
+    ("H","Humans"),
+    ("Z","Zombies"),
+    ("B","Both"),
+)
+
+
 DAYS = (
     ("Mon", "Monday"),
     ("Tue", "Tuesday"),
