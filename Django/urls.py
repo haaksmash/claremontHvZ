@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.views.generic import TemplateView,ListView
-from HvZ.views import HomeView
+from HvZ.models import Rule,Mission,Character
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -15,7 +15,7 @@ urlpatterns = patterns('',
     
     #Rules
     #Landing page for rules
-    (r'^rules/$', ListView.as_view(model=Rule,template_name="new/rule_list.html"),
+    (r'^rules/$', ListView.as_view(model=Rule,template_name="new/rule_list.html")),
     #Expand details for specific rule
     (r'^rules/(?P<rule_id>[\d]+)/$','HvZ.views.RuleJSONView'),
     
@@ -29,7 +29,7 @@ urlpatterns = patterns('',
     
     #Players
     #Landing page for players that displays details of each current player in datatables list
-    (r'^players/$',ListView.as_view(model=Character,template_name="new/character_list.html"),
+    (r'^players/$',ListView.as_view(model=Character,template_name="new/character_list.html")),
     #Player Profile
     (r'^players/profile/(?P<user_id>[\d+])/$','HvZ.views.CharacterProfileView'),
     #Squad Profile
