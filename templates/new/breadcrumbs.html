@@ -1,0 +1,10 @@
+<div id="breadCrumbs">
+	<a href="http://www.claremonthvz.org">Claremont HvZ</a> &gt;
+	{% for level in level_list %}
+		{% if forloop.last %}
+			<span style="font-weight:bold;">{{ level.title }}</span>	
+		{% else %}
+			<a href="{{ level.link }}">{{ level.title }}</a> &gt;
+		{% endif %}
+	{% endfor %}
+</div>

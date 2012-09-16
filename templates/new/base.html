@@ -1,0 +1,297 @@
+{% comment %}
+	title is a string that contains the current page's title.
+
+	user is a dict that contains information about the person logged into the site.
+	Some pages may need more information than this. So far this is all I have defined.
+	user = {
+		"loggedIn":True or False depending on whether they are logged in. If False there are no other fields,
+		"displayName": The friendly representation of the user's name,
+		"userName": The username used in the DB
+		"team": "Human" or "Zombie".
+	}
+
+	level_list is a list that contains dicts for the navigation to the current location.
+	It's mostly used in the breadcrumbs, but you need to have at least level 0 for all pages.
+	The bottom most level does not need a link, only a title.
+	
+	For example, the stats/schools/mudd page would have the following:
+	level_list = [
+		{"title":"Stats", "link":"/stats/"},
+		{"title":"Schools", "link":"/stats/school/"},
+		{"title":"Mudd",},
+	]
+	
+	For the special case of the home page, these pages expect the following:
+	level_list = [
+		{"title":"Home",},
+	]
+
+	category_list is a list that contains dicts for each category on the page.
+	It's the same for all pages under the same tab so we should just have a python script that generates it based on the currently selected tab and include it in all files that call a template.
+	It is completely ignored for the home page because it doesn't have a left nav at all.
+	
+	For example, getCategoryList("stats") should return: 
+	category_list = [
+		{"title":"All Students", "link":"/stats/students/"},
+		{"title":"By School", "link":"/stats/school/"},
+		{"title":"By Year", "link":"/stats/year/"},
+		{"title":"By Dorm", "link":"/stats/dorm/"},
+	]
+	
+	page_list functions like category_list except it's for each page in a given category.
+	
+	For example, getPageList("stats","school") should return:
+	page_list = [
+		{"title":"All","link":"/stats/school/"},
+		{"title":"Pomona","link":"/stats/school/pomona/"},
+		{"title":"Pitzer","link":"/stats/school/pitzer/"},
+		{"title":"Mudd","link":"/stats/school/mudd/"},
+		{"title":"CMC","link":"/stats/school/cmc/"},
+		{"title":"Scripps","link":"/stats/school/scripps/"},
+		{"title":"CGU","link":"/stats/school/cgu/"},
+		{"title":"Keck","link":"/stats/school/keck/"},
+		{"title":"Other","link":"/stats/school/other/"},
+	]
+{% endcomment %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Claremont HvZ - {{ title }}</title>
+		<script type="text/javascript" src="/media/js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="/media/js/jquery-ui-1.8.18.custom.min.js"></script>
+		{% if user.team=="Zombie" %}
+			<link rel="stylesheet" type="text/css" href="/media/css/zombie/jquery-ui-1.8.18.custom.css" />
+		{% else %}
+			<link rel="stylesheet" type="text/css" href="/media/css/human/jquery-ui-1.8.18.custom.css" />
+		{% endif %}
+		<style type="text/css">
+			body{
+				background-color: black;
+				font-family: sans-serif;
+			}
+			#decoLeft{
+				position: absolute;
+				width: 50px;
+				left: 0px;
+				top: 50%;
+				height: 400px;
+				margin-top: -200px;
+				z-index: -1;
+			}
+			#decoRight{
+				position: absolute;
+				width: 50px;
+				right: 0px;
+				top: 50%;
+				height: 400px;
+				margin-top: -200px;
+				z-index: -1;
+			}
+			#mainBox{
+				position: absolute;
+				top:0px;
+				left:0px;
+				right:0px;
+				bottom:0px;
+			}
+			#mainFrame{
+				position: relative;
+				width: 800px;
+				height: 100%;
+				margin:0px auto;
+				z-index: 50;
+			}
+			#logo{
+				height: 100px;
+				width: 190px;
+				float: left;
+			}
+			#tabs{
+				height: 100px;
+				width: 510px;
+				float: left;
+				background-color: #0E0874;
+				overflow: hidden;
+				font-size: 18px;
+			}
+			#tabsFloat{
+				float:left;
+				height: 100%;
+				width: 510px;
+				margin-bottom: -40px;
+			}
+			#tabsContent .passive{
+				margin: 0px 10px;
+				padding: 10px;
+				position: relative;
+				background-color: #999;
+				height: 30px;
+				float: left;
+				border:0px solid;
+				border-top-left-radius: 30px 10px;
+				border-top-right-radius: 30px 10px;
+			}
+			#tabsContent .active{
+				margin: -40px 10px;
+				padding: 10px;
+				position: relative;				
+				height: 80px;
+				float: left;
+				border:0px solid;
+				border-top-left-radius: 20px 50px;
+				border-top-right-radius: 20px 50px;
+				
+				{% if user.team == "Zombie" %}
+					background-color: #007D1C;
+				{% else %}
+					background-color: #870047;
+				{% endif %}
+			}
+			
+			#settings{
+				height: 100px;
+				width: 100px;
+				float: left;
+				background-color: #006;
+			}
+			#settings a{
+				color: white;
+			}
+			#settings ul{
+				list-style-type: none;
+				margin: 10px;
+				padding: 0px;
+				text-align: right;
+			}
+			#settings ul li{
+				margin: 0px;
+				padding: 0px;
+			}
+			
+			#leftNav{
+				width: 190px;
+				background-color: black;
+				font-size: 16px;
+				float: left;
+			}
+			#leftNav .search{
+				padding: 5px;
+				font-size: 14px;
+				background-color: #A67F00;
+				width: 190px;
+			}
+			#leftNav .passive{
+				margin: 5px 0px;
+				padding: 10px 0px 10px 35px;
+				width: 175px;
+				background-color: #999;
+				vertical-align: center;
+				border: 1px black;
+				border-top-left-radius: 15px;
+				border-bottom-left-radius: 15px;
+			}
+			#leftNav .active{
+				margin: 0px;
+				padding: 10px 0px 10px 10px;
+				width: 200px;
+				font-weight: bold;
+				border: 1px black;
+				border-top-left-radius: 15px;
+				border-bottom-left-radius: 15px;
+				
+				{% if user.team == "Zombie" %}
+					background-color: #007D1C;
+				{% else %}
+					background-color: #870047;
+				{% endif %}
+			}
+			#children{
+				font-size: 14px;
+				font-weight: normal;
+			}
+			#children .kidPassive{
+				padding: 5px 0px 5px 50px;
+			}
+			#children .kidActive{
+				padding: 2px 0px 5px 10px;
+				margin-left: 15px;
+				background-color: white;
+				color: black;
+				font-weight: bold;
+				border: 0px;
+				border-top-left-radius: 15px;
+				border-bottom-left-radius: 15px;
+			}
+			.navImage{
+				margin: 0px;
+				padding: 5px;
+				vertical-align: bottom;
+			}
+			
+			#breadCrumbs{
+				background-color: #F99;
+				width: 610px;
+				height: 25px;
+				float: left;
+				font-size: 14px;
+				padding-top: 5px;
+			}
+			#breadCrumbs a{
+				padding: 5px;
+				color: white;
+			}
+			
+			#content{
+				background-color: white;
+				float: left;
+				padding: 5px;
+				width: 600px;
+				min-height: 450px;
+			}
+			#content h1{
+				margin: 0px;
+			}
+			
+			#footer{
+				float: left;
+				margin-left: 200px;
+				width: 600px;
+				height: 25px;
+				background-color: black;
+				color: white;
+				text-align: center;
+			}
+			{% block headers %}{% endblock %}
+		</style>
+	</head>
+	<body>
+		<div id="mainBox">
+			<div id="mainFrame">
+				<div id="logo"><a href="/"><img src="http://claremonthvz.org/media/img/logo.png" width="190px" height="100px"/></a></div>
+				<div id="tabs">
+					<div id="tabsFloat"></div>
+					{% include "tabs.html" %}
+				</div>
+				{% include "settings.html" %}
+				{% if level_list.0.title != "Home" %}
+					{% include "leftNav.html" %}
+					{% include "breadcrumbs.html" %}
+				{% endif %}
+				<div id="content">
+					<h1>{{ title }}</h1>
+					{% block content %}
+					{% endblock %}
+				</div>
+				<div id="footer">
+					{% include "footer.html" %}
+				</div>
+			</div>
+		</div>
+		<div id="decoLeft">
+			<img src="http://claremonthvz.org/media/img/logo.png" width="50px" height="400px"/>
+		</div>
+		<div id="decoRight">
+			<img src="http://claremonthvz.org/media/img/logo.png" width="50px" height="400px"/>
+		</div>
+	</body>
+</html>

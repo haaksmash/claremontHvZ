@@ -1,0 +1,30 @@
+<div id="tabs">
+	<div id="tabsFloat"></div>
+	<div id="tabsContent">
+		{% if level_list.0.title == "Rules" %}
+			<div class="active"><a href="/rules/">Rules</a></div>
+		{% else %}
+			<div class="passive"><a href="/rules/">Rules</a></div>
+		{% endif %}
+		{% if level_list.0.title == "Graphs" %}
+			<div class="active"><a href="/graphs/">Graphs</a></div>
+		{% else %}
+			<div class="passive"><a href="/graphs/">Graphs</a></div>
+		{% endif %}
+		{% if level_list.0.title == "Players" %}
+			<div class="active"><a href="/players/">Players</a></div>
+		{% else %}
+			<div class="passive"><a href="/players/">Players</a></div>
+		{% endif %}
+		{% if level_list.0.title == "Forums" %}
+			<div class="active"><a href="/forum/">Forums</a></div>
+		{% else %}
+			<div class="passive"><a href="/forum/">Forums</a></div>
+		{% endif %}
+		{% if level_list.0.title == "Missions" %}
+			<div class="active"><a href="/mission/">Missions</a></div>
+		{% else %}
+			<div class="passive"><a href="/mission/">Missions</a></div>
+		{% endif %}
+	</div>
+</div>

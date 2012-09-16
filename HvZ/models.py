@@ -84,6 +84,9 @@ class Rule(models.Model):
         """Return a string representation of the rule"""
         return str(self.title)
 
+    class Meta:
+        ordering = ["priority"]
+
 #################
 # Mission Stuff #
 #################
@@ -188,6 +191,7 @@ class MissionPic(models.Model):
         """Returns a string representation of the mission pic"""
         return "%s for %s"%(self.title, str(self.mission))
 
+#Optional
 class MissionPoint(models.Model):
     """MissionPoints are how you indicate points that are important to missions"""
     mission = models.ForeignKey(Mission)
@@ -199,6 +203,7 @@ class MissionPoint(models.Model):
         """Returns a string represntation of the mission point."""
         return "%s %s for %s"%(self.get_kind_display(), str(self.location), str(self.mission))
 
+#Optional
 class Plot(models.Model):
     """Plots are story elements that are not part of missions"""
     title = models.CharField(max_length=30)
@@ -242,6 +247,7 @@ class Player(models.Model):
         """Returns a string representation of the user"""
         return "%s %s" % (self.user.first_name, self.user.last_name)
 
+#Optional if we make unsubscribe delete their cell number from the DB
 class PlayerCellSetting(models.Model):
     """Player Cell Phone settings"""
     player = models.OneToOneField(Player)
@@ -269,6 +275,7 @@ class PlayerCellSetting(models.Model):
         self.legendary_announce = False
         self.legendary_update = False
 
+#Optional
 class PlayerProfileSetting(models.Model):
     """Player profile information"""
     player = models.OneToOneField(Player)
@@ -346,6 +353,7 @@ class Character(models.Model):
         p = self.player
         p.bad_posts += 1
 
+#Optional if we put feed codes back in the character model
 class FeedCode(models.Model):
     """FeedCodes are the way that meals are handled. Now that there are so many new options, it has been pulled out."""
     character = models.ForeignKey(Character, blank=True, null=True)
@@ -377,6 +385,7 @@ class Meal(models.Model):
         else:
             return "%s (%s) escaped from %s"%(str(self.eaten),str(self.feed.code),str(self.eater))
 
+#Optional
 class Classes(models.Model):
     """Classes are character enrollment in courses during a game. It exists so they can coordinate arriving and leaving in groups."""
     character = models.ForeignKey(Character)
@@ -389,6 +398,7 @@ class Classes(models.Model):
         """Returns a string representation of the person in class"""
         return str(self.character)+" is in "+str(self.building)+" on "+self.get_day_display()+" from "+self.get_arrive_display()+" until "+self.get_leave_display()
 
+#Optional
 class MissionAttendance(models.Model):
     character = models.ForeignKey(Character)
     mission = models.ForeignKey(Mission)
@@ -397,6 +407,7 @@ class MissionAttendance(models.Model):
 ###############
 # Squad Stuff #
 ###############
+#Optional
 class Squad(models.Model):
     """Squads are self organized groups of players"""
     name = models.CharField(max_length=255);
@@ -408,6 +419,7 @@ class Squad(models.Model):
         """Returns a string representation of the squad"""
         return str(self.name)
 
+#Optional
 class SquadMember(models.Model):
     """SquadMembers are how people get involved in their squads"""
     #This is set up so that characters can only be part of one squad per game. I think this is ok, unless we make moderator team a squad
@@ -462,6 +474,7 @@ class ForumPost(models.Model):
 ################
 # Achievements #
 ################
+#Optional
 class Award(models.Model):
     """Awards are things that characters can earn over the course of the game. Some are game specific, others are not."""
     title = models.CharField(max_length=30)
@@ -471,8 +484,9 @@ class Award(models.Model):
     def __unicode__(self):
         """Return a string representation of an award"""
         return self.title
-        
 
+        
+#Optional
 class Achievement(models.Model):
     """Achievements are instances of characters earning awards"""
     character = models.ForeignKey(Character)
@@ -518,6 +532,7 @@ class MealsPerBuilding(models.Model):
         """Returns a string representation of the number of meals a building has accrued in a game"""
         return "%s has %s meals in %s"%(str(self.location), str(self.meals), str(self.game))
 
+#Optional
 class ClassAttendance(models.Model):
     """Class Attendance is the number of students enrolled in a class in a building for various times a day during a given game"""
     building = models.ForeignKey(Building)
@@ -629,6 +644,7 @@ def change_team_visibility(sender, instance, signal, *args, **kwargs):
                 prof.show_cell="H"
         prof.save()
 
+#Optional
 @receiver(post_save, sender=Classes)
 def add_class_attendance(sender, instance, signal, *args, **kwargs):
     att = ClassAttendance.objects.filter(building=instance.building, game=instance.character.game, day=instance.day)
