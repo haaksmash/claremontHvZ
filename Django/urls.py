@@ -48,10 +48,10 @@ urlpatterns = patterns('',
     (r'^forum/post/$', 'HvZ.views.dummy'),
     
     #Missions
-    #Mission landing page
-    (r'^mission/$', 'HvZ.views.dummy'),
+    #Mission landing page,
+    (r'^mission/$', ListView.as_view(model=Mission,template_name="new/mission_list.html")),
     #JSON of mission details
-    (r'^mission/(?P<mission_id>[\d]+)/$','HvZ.dummy'),
+    (r'^mission/(?P<mission_id>[\d]+)/$','HvZ.views.MissionJSONView'),
     
     #Game Actions
     #Eat

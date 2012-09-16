@@ -4,4 +4,15 @@
 {% endblock %}
 
 {% block content %}
+<h2>{% if team == "Z" %}Zombie{% else %}Human{% endif %} {{ class|default:"" }}</h3>
+<table>
+    <tr><td>Player:</td><td>{{ first }} {{ last }}</td></tr>
+    <tr><td>School:</td><td>{{ school }}</td></tr>
+    <tr><td>Dorm:</td><td>{{ dorm }}</td></tr>
+    <tr><td>Class Year:</td><td>{{ year }}</td></tr>
+{% if team == "Z" %}
+    <tr><td>Meals:</td><td>{{ meals }}</td></tr>
+{% endif %}
+</table>
+
 {% endblock %}
