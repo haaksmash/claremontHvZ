@@ -20,7 +20,7 @@
 	                    // Picture
 	                    if (showPicture && data.image != "") {
 	                        appdata += "<img src='/media/"+data.image+"' />";
-	                    } 
+	                    }
 
 	                    // Video
 	                    if (data.youtube != "") {
@@ -41,15 +41,14 @@
 	{% for rule in object_list %}
 		<div id="rule_{{ rule.id }}">
 			<h2><button onclick="load_rule({{ rule.id }})">{{ rule.title }}</button></h2>
-			{% if rule.category== "C" %}
+			{% if rule.category == "C" %}
 				<img src="/media/{{ rule.pic }}" alt="image of {{rule.title}}"/>
-			{% elif rule.category== "L" %}
+			{% elif rule.category == "L" %}
 				<img src="http://maps.googleapis.com/maps/api/staticmap?center=
 				{{ rule.location.lat }},{{ rule.location.lng }}&zoom=18&size=300x300&maptype=hybrid&markers=
 				size:small%7C{{ rule.location.lat }},{{ rule.location.lng }}&sensor=false" />
 			{% endif %}
 			<p>{{ rule.description|safe }}</p>
-			{% endif %}
 			<div id="rule_{{ rule.id }}_extra"></div>
 		</div>
 	{% endfor %}
