@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block headers %}
+	<link rel="stylesheet" type="text/css" href="/media/css/jquery.dataTables.css" />
+	<script type="text/javascript" src="/media/js/jquery.dataTables.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#playerList').dataTable({
+				"aaSorting": [[1,'asc'],[2,'asc']],
+				"aoColumns": [
+					/* First (hidden and only used for sorting)*/ { "bVisible": false },
+					/* First (with link to profile) */ { "iDataSort": 0 },
+					/* Last */ null,
+					/* School */ null,
+					/* Year */ null,
+					/* Dorm */ null,
+					/* Team */ null,
+					/* Class */ null,
+					/* Meals */ { "aDataSort": [6,8]}
+				],
+				"bPaginate": false,
+				"bFilter": true,
+				"bSort": true,
+				"bInfo": false,
+				"bAutoWidth": true,
+				"sScrollY": "400px",
+				"sDom": "frtiS",
+				"bDeferRender": true
+			});
+			{% if search_term.exists %}
+			$('#playerList').fnFilter('{{ search_term }}')
+			{% endif %}
+		});
+	</script>
+{% endblock %}
+
+{% block content %}
+<table id="playerList">
+	<thead>
+		<tr>
+			<th>First Sorter</th>
+			<th>First</th>
+			<th>Last</th>
+			<th>School</th>
+			<th>Year</th>
+			<th>Dorm</th>
+			<th>Team</th>
+			<th>Class</th>
+			<th>Meals</th>
+		</tr>
+	</thead>
+	<tbody>
+  {% for character in objects %}
+		<tr>
+			<td>{{ character.player.user.first_name }}</td>
+			<td><a href="/players/profile/{{ character.player.user.id }}">{{ character.player.user.first_name }}</a></td>
+			<td>{{ character.player.user.last_name }}</td>
+			<td>{{ character.player.school }}</td>
+			<td>{{ character.player.class_year }}</td>
+			<td>{{ character.player.dorm }}</td>
+			<td>{{ character.team }}</td>
+			<td>{{ character.upgrade }}</td>
+			<td>{{ character.meals }}</td>
+		</tr>
+  {% endfor %}
+	</tbody>
+</table>
+{% endblock %}

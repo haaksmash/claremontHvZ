@@ -1,0 +1,17 @@
+<div id="settings">
+	<ul>
+		{% if user.loggedIn %}
+			<li>Logged in as <strong>{{ user.displayName }}</strong></li>
+			<li><a href="/auth/logout/">Log Out</a></li>
+			<li><a href="/profile/{{ user.userName }}">Profile</a></li>
+			<li><a href="/settings/">Settings</a></li>
+			{% if user.team == "Zombie" %}
+				<li><a href="/eat/">Eat</a></li>
+			{% endif %}
+		{% else %}
+			<li><label for="email">Email: </label><input type="text" name="email"></li>
+			<li><label for="pass">Password: </label><input type="password" name="password" /></li>
+			<li><button>Log In</button>
+		{% endif %}
+	</ul>
+</div>

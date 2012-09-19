@@ -1,0 +1,26 @@
+<div id="leftNav">
+	<div class="search">Player Search:<input type="search" size="15"/><button src="http://claremonthvz.org/media/img/logo.png">Go</button></div>
+	{% for category in category_list %}
+		{% if level_list.1.title == category.title %}
+		<div class="active">
+			<img src="http://claremonthvz.org/media/img/logo.png" class="navImage" width="10px" height="10px"/>
+			<span class="title">{{ category.title }}</span>
+			{% if page_list and level_list|length_is:"2" %}
+				<div id="children">
+					{% for page in page_list %}
+						{% if level_list.2.title == page.title %}
+							<div class="kidActive">
+								<img src="http://claremonthvz.org/media/img/logo.png" class="navImage" width="10px" height="10px"/>
+								<span class="title">{{ page.title }}</span>
+							</div>
+						{% else %}
+							<div class="kidPassive"><a href="{{ page.link }}">{{ page.title }}</a></div>
+						{% endif %}
+					{% endfor %}
+				</div>
+			{% endif %}
+		</div>
+		{% else %}
+			<div class="passive"><a href="{{ category.link }}">{{ category.title }}</a></div>
+		{% endif %}
+</div>

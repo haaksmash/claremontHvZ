@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block headers %}
+	.homeButton{
+		float: left;
+		margin: 20px;
+		padding: 5px;
+		background-color: black;
+		text-align: center;
+		border:0px solid;
+		border-radius: 10px;				
+	}
+	
+	.homeButton a{
+		color: white;
+	}
+{% endblock %}
+
+{% block content %}
+	<p>Welcome to Claremont HvZ, your source for Humans vs Zombies at the Claremont Colleges.</p>
+	<div class="homeButton"><a href="/rules"><img src="http://claremonthvz.org/media/img/logo.png" width="200px" height="200px"/><br/>Rules</a></div>
+	<div class="homeButton"><a href="/graphs"><img src="http://claremonthvz.org/media/img/logo.png" width="200px" height="200px"/><br/>Graphs</a></div>
+	<div class="homeButton"><a href="/players"><img src="http://claremonthvz.org/media/img/logo.png" width="200px" height="200px"/><br/>Players</a></div>
+	<div class="homeButton"><a href="/forum"><img src="http://claremonthvz.org/media/img/logo.png" width="200px" height="200px"/><br/>Forums</a></div>
+	<div class="homeButton"><a href="/missions"><img src="http://claremonthvz.org/media/img/logo.png" width="200px" height="200px"/><br/>Missions</a></div>
+	<div class="homeButton"><a href="/eat"><img src="http://claremonthvz.org/media/img/logo.png" width="200px" height="200px"/><br/>Eat</a></div>
+{% endblock %}

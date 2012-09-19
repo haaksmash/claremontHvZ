@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block headers %}
+<script type="text/javascript">
+	function load_rule(id){
+		$("#rule_"+id+" button").button("option","disabled",true);
+		$.ajax({
+			type: "GET",
+			url: "/rules/r/"+id,
+			dataType: "json",
+			success: function(data){
+	                    // Only add data that exists
+          		      appdata = "";
+
+	                    // Description
+	                    if (data.details != "") {
+	                        appdata += "<p>"+data.details+"</p>"
+	                    }
+
+	                    // Picture
+	                    if (showPicture && data.image != "") {
+	                        appdata += "<img src='/media/"+data.image+"' />";
+	                    } 
+
+	                    // Video
+	                    if (data.youtube != "") {
+	                        appdata += "<iframe width='560' height='315' src='";
+	                        appdata += data.youtube+"' frameborder = '0'"+
+	                                   "allowfullscreen></iframe>";
+	                    }
+
+				$("#rule_"+id+"_extra").append(appdata).slideToggle();
+			}
+		});
+
+	}
+</script>
+{% endblock %}
+
+{% block content %}
+	{% for rule in object_list %}
+		<div id="rule_{{ rule.id }}">
+			<h2><button onclick="load_rule({{ rule.id }})">{{ rule.title }}</button></h2>
+			{% if rule.category== "C" %}
+				<img src="/media/{{ rule.pic }}" alt="image of {{rule.title}}"/>
+			{% elif rule.category== "L" %}
+				<img src="http://maps.googleapis.com/maps/api/staticmap?center=
+				{{ rule.location.lat }},{{ rule.location.lng }}&zoom=18&size=300x300&maptype=hybrid&markers=
+				size:small%7C{{ rule.location.lat }},{{ rule.location.lng }}&sensor=false" />
+			{% endif %}
+			<p>{{ rule.description|safe }}</p>
+			{% endif %}
+			<div id="rule_{{ rule.id }}_extra"></div>
+		</div>
+	{% endfor %}
+{% endblock %}
